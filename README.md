@@ -1,2 +1,5 @@
 # spyro_ad
-Firedrake-based FWI solver with automated adjoint. This repository uses spyro (https://github.com/NDF-Poli-USP/spyro) as the base. However, it is more compact and read by the differentiation algorithmic, pyadjoint.
+This Python package is a copy of the original spyro package (https://github.com/NDF-Poli-USP/spyro) 
+that composes the implementation of wave propagation and Full Waveform Inversion (FWI).
+Modifications were made to generate an automated adjoint-based gradient given by firedrake_adjoint.
+
