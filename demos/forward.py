@@ -4,8 +4,9 @@ import time as tm
 import firedrake as fire
 import settings
 from spyro_ad import io, AcousticSolver, utils
+from spyro_ad.io import ensemble_solvers_ad
 
-
+@ensemble_solvers_ad
 def run_forward_true(solver_type, tot_source_num, comm, sn=0):
     """Execute a forward wave propagation.
 
@@ -20,7 +21,7 @@ def run_forward_true(solver_type, tot_source_num, comm, sn=0):
     sn : int, optional
         Source number, by default 0.
     """
-    print('######## Running the exact model ########')
+    print('######## Running the exact model ########', flush=True)
     p_exact_recv = solver.wave_propagate(
                             vp_exact, source_n=sn,
                             save_rec_data=True
@@ -53,4 +54,4 @@ tot_sn = len(model["acquisition"]["source_pos"])
 for i in range(tot_sn):
     run_forward_true(solver_type, tot_sn, comm, sn=i)
 end = tm.time()
-print(end-start)
+print(end-start, flush=True)
