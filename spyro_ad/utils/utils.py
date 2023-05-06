@@ -1,6 +1,7 @@
 """This module contains functions  used in the spyro_ad solvers.
 """
 import math
+import numpy as np
 from scipy.signal import butter, filtfilt
 import firedrake as fire
 
@@ -19,7 +20,7 @@ def delta_expr(source_loc, mesh, sigma_x=2000.0):
         Guassian function.
     """
     z, x = fire.SpatialCoordinate(mesh)
-    x_0 = source_loc[0]
+    x_0 = source_loc
     return fire.exp(-sigma_x * ((z - x_0[0]) ** 2 + (x - x_0[1]) ** 2))
 
 
@@ -184,7 +185,7 @@ def full_ricker_wavelet(dt, tf, freq, amp=1.0, cutoff=None):
     return full_wavelet
 
 
-def vertex_only_mesh_interpolator(solution, mesh_rec, elastic=False):
+def vertexonlymesh_interpolator(solution, mesh_rec, elastic=False):
     """Vertex only mesh.
 
     Parameters

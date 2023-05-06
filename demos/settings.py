@@ -1,4 +1,6 @@
-import spyro_ad
+"""Settings employed to run the wave equation solvers.
+"""
+import numpy as np
 import firedrake as fire
 
 
@@ -15,7 +17,7 @@ def model_settings(vel_model: str) -> dict:
     model["opts"] = {
         "method": "KMV",  # either CG or KMV
         "quadrature": "KMV",  # Equi or KMV
-        "degree": 3,  # p order
+        "degree": 1,  # p order
         "dimension": 2,  # dimension
         "regularization": False,  # regularization is on?
         "gamma": 1e-5,  # regularization parameter
@@ -76,9 +78,9 @@ def model_settings(vel_model: str) -> dict:
             "delay": 1.0,  # FIXME check this
             "num_sources": 1,  # FIXME not used (remove it, and update an example script)
             # "source_pos": [(-0.11, 0.5)],
-            "source_pos": spyro.create_transect((-0.1, 0.2), (-0.1, 0.8), 1),
+            "source_pos": np.linspace((-0.1, 0.2), (-0.1, 0.8), 1),
             "amplitude": 1.0,  # FIXME check this
-            "receiver_locations": spyro.create_transect((-0.15, 0.2), (-0.15, 0.8), 10),
+            "receiver_locations": np.linspace((-0.15, 0.2), (-0.15, 0.8), 10),
         }
     if vel_model == "marmousi" or vel_model == "br_model":
         model["acquisition"] = {
@@ -90,7 +92,7 @@ def model_settings(vel_model: str) -> dict:
             "source_pos": [(-0.125, 5.0)],
             "amplitude": 1.0,
             "num_receivers": 400,
-            "receiver_locations": spyro.create_transect((-0.225, 0.2), (-0.225, 9.8), 400),
+            "receiver_locations": np.linspace((-0.225, 0.2), (-0.225, 9.8), 400),
         }
     
     model["aut_dif"] = {

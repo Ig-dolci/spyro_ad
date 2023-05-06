@@ -2,9 +2,8 @@
 Can execute forward and implemented adjoint solvers.
 """
 import numpy as np
-from .utils import \
-    (damping, delta_expr, vertex_only_mesh_interpolator, full_ricker_wavelet)
-from .domains import quadrature, space
+from .. import utils
+from ..domains import quadrature, space
 import firedrake as fire
 fire.set_log_level(fire.ERROR)
 
@@ -20,10 +19,12 @@ class AcousticSolver():
     
         Atributes
         ----------
-        model: Python `dictionary`
+        model: dict
             Contains model options and parameters
         mesh: Firedrake.mesh object
-            The 2D/3D triangular mesh
+            The 2D/3D spatial triangular mesh.
+        mesh_rec: Firedrake.mesh object
+            The 2D/3D receiver mesh.
         """
     def __init__(
             self, model, mesh, mesh_rec, solver="fwd"
@@ -45,12 +46,6 @@ class AcousticSolver():
             The MPI communicator for parallelism.
         c: Firedrake.Function
             The velocity model interpolated onto the mesh.
-        excitations: A list Firedrake.Functions
-        receivers: A :class:`spyro.Receivers` object.
-            Contains the receiver locations and sparse 
-            interpolation method fire.
-        wavelet: array-like
-            Time series data that's injected at the source location.
         output: `boolean`, optional
             Whether or not to write results to pvd files.
 
@@ -73,7 +68,8 @@ class AcousticSolver():
         tf = model["timeaxis"]["tf"]
         nt = int(tf / dt)  # number of timesteps
         bc = model["BCs"]["status"]
-        source_loc = model["acquisition"]["source_pos"]
+        freq = model["acquisition"]["frequency"]
+        source_loc = model["acquisition"]["source_pos"][source_n]
         element = space.FE_method(self.mesh, method, degree)
         V = fire.FunctionSpace(self.mesh, element)
         # kwargs
@@ -115,27 +111,24 @@ class AcousticSolver():
         usol = []
         misfit = []
 
-        rec_interp, P = vertex_only_mesh_interpolator(u_nm1, self.mesh_rec)
-        g = fire.Function(V).interpolate(delta_expr(source_loc, self.mesh))
+        wavelet = utils.full_ricker_wavelet(dt, tf, freq)
+        rec_interp, P = utils.vertexonlymesh_interpolator(u_nm1, self.mesh_rec)
+        g = fire.Function(V).interpolate(utils.delta_expr(source_loc, self.mesh))
         for step in range(nt):
             if self.solver == "bwd":
                 fn = fire.Function(V)
                 f.assign(fn)
                
             else:
-                freq = model["acquisition"]["frequency"]
-                wavelet = full_ricker_wavelet(dt, tf, freq)
                 # f_temp = fire.Function(V)
                 # f.dat.data[:] = 1.0
                 w = fire.Constant(wavelet[step])
                 f.assign(g*w)
                 # f = self.excitation.apply_source(f, wavelet[step]/0.0001)
                 # f.interpolate(f_temp)
-
             solver.solve()
             u_nm1.assign(u_n)
             u_n.assign(X)
-
             if self.solver == "fwd":
                 rec = fire.Function(P, name="rec")
                 rec_interp.interpolate(output=rec)
@@ -149,12 +142,10 @@ class AcousticSolver():
                     self.J0 += J
 
         fire.File("u.pvd").write(X)
-        out = []
         if save_rec_data:
-            out.append(np.asarray(usol_recv))
+            return usol_recv
         if save_p:
-            out.append(usol)
-        return out
+            return usol_recv, usol
     
     def params(self) -> set:
         """Element parameters.
@@ -215,14 +206,14 @@ class AcousticSolver():
         dim = model["opts"]["dimension"]
         dt = model["timeaxis"]["dt"]
         if dim == 2:
-            sigma_x, sigma_z = damping(model, self.mesh, V)
+            sigma_x, sigma_z = utils.damping(model, self.mesh, V)
             return (
                     (sigma_x + sigma_z)
                     * ((u - u_nm1) / fire.Constant(2.0 * dt))
                     * v * fire.dx(scheme=qr_x)
                 )
         elif dim == 3:
-            sigma_x, sigma_y, sigma_z = damping(model, self.mesh, V)
+            sigma_x, sigma_y, sigma_z = utils.damping(model, self.mesh, V)
          
             return (
                     (sigma_x + sigma_y + sigma_z)
