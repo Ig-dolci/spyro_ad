@@ -211,3 +211,36 @@ def vertexonlymesh_interpolator(solution, mesh_rec, elastic=False):
         P = fire.FunctionSpace(mesh_rec, "DG", 0)
 
     return fire.Interpolator(solution, P), P
+
+
+def scatter_data_function(arr, space_f, comm, local_index, name=None):
+    """_summary_
+
+    Parameters
+    ----------
+    arr : _type_
+        _description_
+    space_f : _type_
+        _description_
+    comm : _type_
+        _description_
+    local_index : _type_
+        _description_
+    name : _type_, optional
+        _description_, by default None
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    # if comm.ensemble_comm.rank == 0:
+    f = fire.Function(space_f, name=name)
+    n = len(f.dat.data[:])
+
+    if len(local_index) > 0:
+        index_0 = local_index[0]
+        
+        f.dat.data[:] = arr[index_0:(index_0+n)]
+
+    return f

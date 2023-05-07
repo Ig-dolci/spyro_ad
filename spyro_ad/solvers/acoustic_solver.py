@@ -34,8 +34,6 @@ class AcousticSolver():
         self.model = model
         self.mesh_rec = mesh_rec
         self.solver = solver
-        self.tolerance = 0.0000001
-        self.J0 = 0
 
     def wave_propagate(self, c, source_n=0, compute_funct=False, output=False, **kwargs):
         """Acoustic wave equation solver.
@@ -114,6 +112,8 @@ class AcousticSolver():
         wavelet = utils.full_ricker_wavelet(dt, tf, freq)
         rec_interp, P = utils.vertexonlymesh_interpolator(u_nm1, self.mesh_rec)
         g = fire.Function(V).interpolate(utils.delta_expr(source_loc, self.mesh))
+        if compute_funct:
+            J0 = 0.0
         for step in range(nt):
             if self.solver == "bwd":
                 fn = fire.Function(V)
@@ -138,14 +138,15 @@ class AcousticSolver():
                     true_rec = fire.Function(P, name="true_rec")
                     true_rec.dat.data[:] = p_true_rec[step]
                     misfit = rec - true_rec
-                    J = fire.assemble(0.5*fire.inner(misfit, misfit) * fire.dx)
-                    self.J0 += J
+                    J0 = fire.assemble(0.5*fire.inner(misfit, misfit) * fire.dx)
 
         fire.File("u.pvd").write(X)
         if save_rec_data:
             return usol_recv
         if save_p:
             return usol_recv, usol
+        if compute_funct:
+            return J0
     
     def params(self) -> set:
         """Element parameters.
@@ -227,7 +228,7 @@ class AcousticSolver():
         Parameters
         ----------
         c : firedrake.Function
-            P-speed parameter.
+            Wave P-speed parameter.
         qr_x : _type_
             _description_
         method : str

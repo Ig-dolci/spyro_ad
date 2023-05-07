@@ -1,6 +1,5 @@
 from __future__ import with_statement
 
-import os
 import pickle
 
 import firedrake as fire
@@ -59,22 +58,8 @@ def ensemble_plot(func):
     return wrapper
 
 
-def ensemble_forward(func):
-    """Decorator for forward to distribute shots for ensemble parallelism"""
-    def wrapper(*args, **kwargs):
-        acq = args[0].get("acquisition")
-        num = len(acq["source_pos"])
-        _comm = args[2]
-        for snum in range(num):
-            if is_owner(_comm, snum):
-                u, u_r = func(*args, **dict(kwargs, source_num=snum))
-                return u, u_r
-
-    return wrapper
-
-
 def ensemble_solvers_ad(func):
-    """Decorator for fwi to distribute shots for ensemble parallelism"""
+    """Decorator for fwi to distribute shots for ensemble parallelism."""
     def wrapper(*args, **kwargs):
         solver_type = args[0]
         num = args[1]

@@ -24,7 +24,7 @@ def model_settings(vel_model: str) -> dict:
     }
 
     model["parallelism"] = {
-        "type": "automatic",  # options: automatic (same number of cores for evey processor) or spatial
+        "type": "spatial",  # options: automatic (same number of cores for evey processor) or spatial
     }
 
     # Define the domain size without the ABL.
@@ -76,7 +76,7 @@ def model_settings(vel_model: str) -> dict:
             "source_type": "Ricker",
             "frequency": 7.0,
             "delay": 1.0,  # FIXME check this
-            "num_sources": 1,  # FIXME not used (remove it, and update an example script)
+            "num_sources": 2,  # FIXME not used (remove it, and update an example script)
             # "source_pos": [(-0.11, 0.5)],
             "source_pos": np.linspace((-0.1, 0.2), (-0.1, 0.8), 2),
             "amplitude": 1.0,  # FIXME check this

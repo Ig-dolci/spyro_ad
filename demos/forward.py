@@ -1,13 +1,13 @@
-"""Forward solver example.
-"""
+"""Forward solver example."""
 import time as tm
 import firedrake as fire
 import settings
 from spyro_ad import io, AcousticSolver, utils
 from spyro_ad.io import ensemble_solvers_ad
 
-@ensemble_solvers_ad
-def run_forward_true(solver_type, tot_source_num, comm, sn=0):
+
+# @ensemble_solvers_ad
+def execute_fwd(solver_type, tot_source_num, comm, sn=0):
     """Execute a forward wave propagation.
 
     Parameters
@@ -28,6 +28,7 @@ def run_forward_true(solver_type, tot_source_num, comm, sn=0):
                             )
     if comm.comm.rank == 0:
         io.save_shots(model, comm, p_exact_recv)
+
 
 vel_model = "circle"
 model = settings.model_settings(vel_model)
@@ -52,6 +53,6 @@ start = tm.time()
 solver_type = "fwd"
 tot_sn = len(model["acquisition"]["source_pos"])
 for i in range(tot_sn):
-    run_forward_true(solver_type, tot_sn, comm, sn=i)
+    execute_fwd(solver_type, tot_sn, comm, sn=i)
 end = tm.time()
 print(end-start, flush=True)
