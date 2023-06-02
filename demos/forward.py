@@ -2,7 +2,7 @@
 import time as tm
 import firedrake as fire
 import settings
-from spyro_ad import io, AcousticSolver, utils
+from spyro_ad import io, AcousticSolver, utils, plot
 from spyro_ad.io import ensemble_solvers_ad
 
 
@@ -27,7 +27,8 @@ def execute_fwd(solver_type, tot_source_num, comm, sn=0):
                             save_rec_data=True
                             )
     if comm.comm.rank == 0:
-        io.save_shots(model, comm, p_exact_recv)
+        io.save_shots(p_exact_recv, sn)
+        plot.plot_shots(model, comm, p_exact_recv, file_name=str(sn+1), show=True)
 
 
 vel_model = "circle"
@@ -38,7 +39,7 @@ obj = []
 mesh, V = io.read_mesh(model, comm)
 
 if vel_model == "circle":
-    vp_exact = settings._make_vp_circle(V, mesh, vp_guess=False)  # exact  
+    vp_exact = settings.make_vp_circle(V, mesh, vp_guess=False)
 elif (vel_model == "marmousi" or vel_model == "br_model"):
     vp_exact = io.interpolate(model["mesh"]["initmodel"], model, mesh, V)  
 else:

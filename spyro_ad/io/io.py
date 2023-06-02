@@ -176,8 +176,8 @@ def create_segy(velocity, filename):
             f.trace[tr] = velocity[:, tr]
 
 
-@ensemble_save
-def save_shots(model, comm, array, file_name=None):
+# @ensemble_save
+def save_shots(array, snum, file_name=None):
     """Save a `numpy.ndarray` to a `pickle`.
 
     Parameters
@@ -192,13 +192,14 @@ def save_shots(model, comm, array, file_name=None):
     None
 
     """
+    file_name = "shots/shot_record_"+str(snum+1)+".dat"
     with open(file_name, "wb") as f:
         pickle.dump(array, f)
     return None
 
 
-@ensemble_load
-def load_shots(model, comm, file_name=None):
+# @ensemble_load
+def load_shots(model, snum, comm, file_name=None):
     """Load a `pickle` to a `numpy.ndarray`.
 
     Parameters
@@ -212,10 +213,11 @@ def load_shots(model, comm, file_name=None):
         The data
 
     """
-
+    file_name = "shots/shot_record_"+str(snum+1)+".dat"
     with open(file_name, "rb") as f:
         array = np.asarray(pickle.load(f), dtype=float)
     return array
+
 
 
 def is_owner(ens_comm, rank):

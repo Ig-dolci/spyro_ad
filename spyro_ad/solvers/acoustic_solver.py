@@ -123,7 +123,7 @@ class AcousticSolver():
                 # f_temp = fire.Function(V)
                 # f.dat.data[:] = 1.0
                 w = fire.Constant(wavelet[step])
-                f.assign(g*w)
+                f.assign(g*w*1000)
                 # f = self.excitation.apply_source(f, wavelet[step]/0.0001)
                 # f.interpolate(f_temp)
             solver.solve()

@@ -80,7 +80,7 @@ def model_settings(vel_model: str) -> dict:
             # "source_pos": [(-0.11, 0.5)],
             "source_pos": np.linspace((-0.1, 0.2), (-0.1, 0.8), 1),
             "amplitude": 1.0,  # FIXME check this
-            "receiver_locations": np.linspace((-0.15, 0.2), (-0.15, 0.8), 20),
+            "receiver_locations": np.linspace((-0.15, 0.2), (-0.15, 0.8), 10),
         }
     if vel_model == "marmousi" or vel_model == "br_model":
         model["acquisition"] = {
@@ -110,7 +110,7 @@ def model_settings(vel_model: str) -> dict:
     return model
 
 
-def _make_vp_circle(V, mesh, vp_guess=False):
+def make_vp_circle(V, mesh, vp_guess=False):
     """creating velocity models"""
     x, z = fire.SpatialCoordinate(mesh)
     if vp_guess:
